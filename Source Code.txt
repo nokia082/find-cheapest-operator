@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+	<title>Task</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body ng-controller="bodyCtrl">
+	<div class="container">
+		<div class="text-center">
+			<h1>Telephone Operator List</h1>
+		</div>
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="row">
+					<div class="col-sm-6">
+						<caption>Operator A</caption>
+						<table class="table table-bordered">
+							<thead>
+								<th>Operator Prefix</th>
+								<th>Price</th>
+							</thead>
+							<tbody>
+								<tr ng-repeat="operator in operatora">
+									<td>{{operator.prefix}}</td>
+									<td>{{operator.price}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="col-sm-6">
+						<caption>Operator B</caption>
+						<table class="table table-bordered">
+							<thead>
+								<th>Operator Prefix</th>
+								<th>Price</th>
+							</thead>
+							<tbody>
+								<tr ng-repeat="operator in operatorb">
+									<td>{{operator.prefix}}</td>
+									<td>{{operator.price}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<form ng-submit="submitForm()">
+					<div class="form-group">
+						<label>Enter Number</label>
+						<div class="row">
+							<div class="col-sm-4">
+								<input class="form-control" placeholder="prefix" ng-model="prefix">
+							</div>
+							<div class="col-sm-8">
+								<input class="form-control" placeholder="number" ng-model="number">
+							</div>
+						</div>
+					</div>
+					<div class="text-center">
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</div>
+				</form>
+				<h2 ng-if="cheapestOp != ''">The cheapest operator for above number is : {{cheapestOp}}</h2>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+	<script type="text/javascript">
+		var app = angular.module('app',[]);
+
+		app.controller('bodyCtrl',['$scope','$http',function($scope,$http){
+
+			$scope.cheapestOp = '';
+			/* Fetch operator a */
+
+				var httpa = {
+					'method': 'GET',
+					'url': './operator-a.json'
+				}
+
+				$http(httpa)
+					.then(function(data){
+						$scope.operatora = data.data;
+					},function(err){
+
+					})
+
+			/* End of fetching operator a */
+
+
+			/* Fetch operator b */
+
+				var httpa = {
+					'method': 'GET',
+					'url': './operator-b.json'
+				}
+
+				$http(httpa)
+					.then(function(data){
+						$scope.operatorb = data.data;
+					},function(err){
+
+					})
+
+			/* End of fetching operator b */
+
+
+			function checkCheapestOperator(prefix){
+				var prefixa;
+				var prefixb;
+				angular.forEach($scope.operatora,function(v,i){
+					if(v.prefix === prefix){
+						prefixa = v;
+					}
+				});
+
+				angular.forEach($scope.operatorb,function(v,i){
+					if(v.prefix === prefix){
+						prefixb = v;
+					}
+				});
+
+				if(angular.isUndefined(prefixa) && angular.isUndefined(prefixb)){
+					alert("Please enter valid number");
+				}else if(angular.isUndefined(prefixa)){
+					$scope.cheapestOp = "Operator B";
+				}else if(angular.isUndefined(prefixb)){
+					$scope.cheapestOp = "Operator A";
+				}else if(prefixa.price > prefixb.price){
+					$scope.cheapestOp = "Operator B";
+				}else{
+					$scope.cheapestOp = "Operator A";
+				}
+			}
+
+
+			/* Submit Form */
+
+				$scope.submitForm = function(){
+					checkCheapestOperator(parseInt($scope.prefix));
+				}
+
+			/* End of submitting form */
+
+		}]);
+
+	</script>
+</body>
+</html>
